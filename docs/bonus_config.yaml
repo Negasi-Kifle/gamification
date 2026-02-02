@@ -1,0 +1,156 @@
+
+
+- Gamification -> Priority 
+
+    - Freebet upon sign up -> Casino, Sport 
+    - First time Deposit Bonus -> 
+    - Happy Hour Bonus 
+    - Tournament Bonus 
+
+
+
+
+- Reward Engine  
+
+    - Casino Freebet 
+    - Sport Freebet 
+    - Cash 
+    - Cash Bonus 
+    - In Kind 
+
+
+Casino Freebet -> 
+
+    - id -> Primary BigInteger
+    - public_id -> UUID7
+    - tenat_id - uuid7
+    - name
+    - description
+    - currency
+
+    - game_id
+    - unit_value
+    - quantity
+    - expirty_time -> Integer in minutes
+    - status - ACTIVE, INACTIVE
+
+    - created_at
+    - updated_at
+
+SportFreebet  - 
+
+  - id 
+  - public_id
+  - tenant_id
+  - currency
+  - name
+  - description
+  - unit_value
+  - quantity
+
+
+  # Wagering Requirements 
+  - min_total_odd -> 4.5
+  - individual_odd -> 1.15
+  - min_number_of_matches -> 3
+  - max_payout_cap - Unlimlited, 5000 birr 
+
+  # status 
+  - expiry_time -> integer in minutes
+  - status -> Active, Inactive
+
+  -  channel -> Online, Retail, Both
+
+
+Cash 
+    - id
+    - public_id
+    - tenant_id
+    - currency
+    - name
+    - description
+    - unit_value
+    - amount
+    - status -> Active, Inactive
+    - created_at
+    - updated_at
+
+CashBonus
+    - id
+    - public_id
+    - tenant_id
+    - currency
+    - name
+    - description
+
+    - amount 
+    - amount_value_type -> PERCENTAGE, FIXED
+
+    # rollover requirements
+    - rollover_multiplier -> 
+
+    # Contribution requirement for casino 
+    - contribution_min_stake 
+    - allowed_games_for_contribution -> list of game ids
+    - disallowed_games_for_contribution -> list of game ids
+
+    # Contribution requirement for sportsbook
+    - contribution_min_stake 
+    - allowed_sports_for_contribution -> list of sport ids
+    - disallowed_sports_for_contribution -> list of sport ids
+    - min_total_odd -> float
+    - min_individual_odd -> float
+    - min_number_of_selections -> integer
+
+    #  actual contribution amount
+    - max_contribution_amount -> float
+    - max_contribution_amount_type -> PERCENTAGE, FIXED
+
+
+    - status -> Active, Inactive
+    - created_at
+    - updated_at
+
+
+InKind
+
+    - id
+    - public_id
+    - tenant_id
+
+    - name
+    - description
+    - quantity 
+    - icon
+    - status -> Active, Inactive
+    - created_at
+    - updated_at
+
+
+BonusCampaign
+    - id
+    - public_id
+    - tenant_id
+    - name
+    - description
+    - start_date
+    - end_date
+    - priority
+    - status -> Active, Inactive
+
+    - trigger -> Sign Up, Deposit,  CasinoBet, SPortBet
+
+    - condition 
+        - Deposit Condition 
+            - deposit_condition_type -> Deposit, Happy Hour Deposit
+
+            - start_time, end_time - [ Happy Hour Deposit ]
+            - days of the week - [ Happy Hour Deposit ]
+            - min_deposit_amount - [ Deposit, Happy Hour Deposit ]
+            - player_deposit_count - [ Deposit] 
+        
+    - reward -> ForeignKey to RewardEngine
+
+    
+    - created_at
+    - updated_at

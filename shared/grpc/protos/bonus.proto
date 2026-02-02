@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package bonus;
+
+// Casino Freebet Service
+service CasinoFreeBetService {
+    // Create a new casino freebet
+    rpc CreateFreebet(CreateFreebetRequest) returns (FreebetResponse);
+    
+    // Update freebet status (activate/deactivate)
+    rpc UpdateStatus(UpdateStatusRequest) returns (FreebetResponse);
+    
+    // Get freebets expiring soon (for notifications)
+    rpc GetExpiring(GetExpiringRequest) returns (FreebetListResponse);
+}
+
+// Enums
+enum CasinoFreeBetStatus {
+    FREEBET_STATUS_UNSPECIFIED = 0;
+    FREEBET_STATUS_ACTIVE = 1;
+    FREEBET_STATUS_INACTIVE = 2;
+    FREEBET_STATUS_EXPIRED = 3;
+    FREEBET_STATUS_USED = 4;
+}
+
+enum FreebetCurrency {
+    FREEBET_CURRENCY_UNSPECIFIED = 0;
+    FREEBET_CURRENCY_ETB = 1;
+    FREEBET_CURRENCY_SZL = 2;
+    FREEBET_CURRENCY_TSH = 3;
+    FREEBET_CURRENCY_ZMW = 4;
+    FREEBET_CURRENCY_USD = 5;
+}
+
+// Request Messages
+message CreateFreebetRequest {
+    string tenant_id = 1;
+    string name = 2;
+    string description = 3;
+    FreebetCurrency currency = 4;
+    string game_id = 5;
+    string unit_value = 6;  // Decimal as string for precision
+    int32 quantity = 7;
+    int32 expiry_minutes = 8;
+    CasinoFreeBetStatus initial_status = 9;
+}
+
+message UpdateStatusRequest {
+    string public_id = 1;
+    CasinoFreeBetStatus new_status = 2;
+}
+
+message GetExpiringRequest {
+    int32 hours_threshold = 1;  // Default 24 hours
+}
+
+// Response Messages
+message FreebetResponse {
+    string public_id = 1;
+    string name = 2;
+    string currency = 3;
+    string game_id = 4;
+    string unit_value = 5;
+    int32 quantity = 6;
+    int32 expiry_minutes = 7;
+    string status = 8;
+    string total_value = 9;
+    string expires_at = 10;  // ISO format timestamp
+    bool is_expired = 11;
+}
+
+message FreebetListResponse {
+    repeated FreebetResponse freebets = 1;
+    int32 count = 2;
+}

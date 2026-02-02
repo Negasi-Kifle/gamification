@@ -1,0 +1,8 @@
+Django==6.0.1
+psycopg2-binary==2.9.11
+grpcio==1.76.0
+grpcio-tools==1.76.0
+protobuf==6.33.5
+pytest==9.0.2
+pytest-django==4.11.1
+python-dotenv==1.2.1
