@@ -1,13 +1,13 @@
 from .CasinoFreeBetExceptions import (
     FreebetError,
-    InsufficientFreebetsError,
     FreebetExpiredError,
+    InsufficientFreebetsError,
     InvalidFreebetStateError,
 )
 
 __all__ = [
     "FreebetError",
-    "InsufficientFreebetsError",
     "FreebetExpiredError",
+    "InsufficientFreebetsError",
     "InvalidFreebetStateError",
 ]

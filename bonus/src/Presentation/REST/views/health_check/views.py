@@ -1,11 +1,11 @@
-from django.http import JsonResponse
 from django.db import connection
+from django.http import JsonResponse
 
 
 def health_check(request):
     """
     Health check endpoint for deployment readiness.
-    
+
     Returns:
         JSON response with health status and optional DB connectivity check.
     """
@@ -13,7 +13,7 @@ def health_check(request):
         "status": "healthy",
         "service": "bonus",
     }
-    
+
     # Check database connectivity
     try:
         with connection.cursor() as cursor:
@@ -24,5 +24,5 @@ def health_check(request):
         health_status["database"] = "disconnected"
         health_status["error"] = str(e)
         return JsonResponse(health_status, status=503)
-    
+
     return JsonResponse(health_status)

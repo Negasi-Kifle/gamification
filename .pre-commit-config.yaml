@@ -1,0 +1,68 @@
+# Pre-commit configuration for Gamification service
+# PR and code review tooling
+#
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Ruff - Fast Python linter and formatter
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.0
+    hooks:
+      # Linter
+      - id: ruff
+        args: [--fix]
+      # Formatter (replaces black)
+      - id: ruff-format
+
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # Prevent giant files from being committed
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+      # Check for files that would conflict in case-insensitive filesystems
+      - id: check-case-conflict
+      # Check for files that contain merge conflict strings
+      - id: check-merge-conflict
+      # Check yaml files for parseable syntax
+      - id: check-yaml
+        args: [--unsafe]  # Allow custom tags in yaml
+        exclude: ^docs/bonus_config.yaml$  # Documentation file, not strict YAML
+      # Check json files for parseable syntax
+      - id: check-json
+      # Check toml files for parseable syntax
+      - id: check-toml
+      # Ensure files end with a newline
+      - id: end-of-file-fixer
+      # Remove trailing whitespace
+      - id: trailing-whitespace
+      # Don't commit directly to main/master
+      - id: no-commit-to-branch
+        args: [--branch, main, --branch, master]
+      # Check for debugger imports and py37+ breakpoint()
+      - id: debug-statements
+
+  # Django migration checks
+  - repo: local
+    hooks:
+      - id: django-check-migrations
+        name: Check Django migrations
+        entry: python manage.py makemigrations --check --dry-run
+        language: system
+        types: [python]
+        pass_filenames: false
+
+  # Security checks
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.7
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml"]
+        additional_dependencies: ["bandit[toml]"]
+
+# CI/CD configuration
+# Run these checks in your CI pipeline as well:
+# - pre-commit run --all-files
+# - python manage.py lintmigrations (after adding django-migration-linter)

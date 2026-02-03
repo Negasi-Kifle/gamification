@@ -1,9 +1,11 @@
-from google.protobuf.internal import containers as _containers
-from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+from collections.abc import Iterable as _Iterable
+from collections.abc import Mapping as _Mapping
+from typing import ClassVar as _ClassVar
+
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from collections.abc import Iterable as _Iterable, Mapping as _Mapping
-from typing import ClassVar as _ClassVar, Optional as _Optional, Union as _Union
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -23,6 +25,7 @@ class FreebetCurrency(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
     FREEBET_CURRENCY_TSH: _ClassVar[FreebetCurrency]
     FREEBET_CURRENCY_ZMW: _ClassVar[FreebetCurrency]
     FREEBET_CURRENCY_USD: _ClassVar[FreebetCurrency]
+
 FREEBET_STATUS_UNSPECIFIED: CasinoFreeBetStatus
 FREEBET_STATUS_ACTIVE: CasinoFreeBetStatus
 FREEBET_STATUS_INACTIVE: CasinoFreeBetStatus
@@ -36,7 +39,17 @@ FREEBET_CURRENCY_ZMW: FreebetCurrency
 FREEBET_CURRENCY_USD: FreebetCurrency
 
 class CreateFreebetRequest(_message.Message):
-    __slots__ = ("tenant_id", "name", "description", "currency", "game_id", "unit_value", "quantity", "expiry_minutes", "initial_status")
+    __slots__ = (
+        "currency",
+        "description",
+        "expiry_minutes",
+        "game_id",
+        "initial_status",
+        "name",
+        "quantity",
+        "tenant_id",
+        "unit_value",
+    )
     TENANT_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     DESCRIPTION_FIELD_NUMBER: _ClassVar[int]
@@ -55,24 +68,51 @@ class CreateFreebetRequest(_message.Message):
     quantity: int
     expiry_minutes: int
     initial_status: CasinoFreeBetStatus
-    def __init__(self, tenant_id: _Optional[str] = ..., name: _Optional[str] = ..., description: _Optional[str] = ..., currency: _Optional[_Union[FreebetCurrency, str]] = ..., game_id: _Optional[str] = ..., unit_value: _Optional[str] = ..., quantity: _Optional[int] = ..., expiry_minutes: _Optional[int] = ..., initial_status: _Optional[_Union[CasinoFreeBetStatus, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        tenant_id: str | None = ...,
+        name: str | None = ...,
+        description: str | None = ...,
+        currency: FreebetCurrency | str | None = ...,
+        game_id: str | None = ...,
+        unit_value: str | None = ...,
+        quantity: int | None = ...,
+        expiry_minutes: int | None = ...,
+        initial_status: CasinoFreeBetStatus | str | None = ...,
+    ) -> None: ...
 
 class UpdateStatusRequest(_message.Message):
-    __slots__ = ("public_id", "new_status")
+    __slots__ = ("new_status", "public_id")
     PUBLIC_ID_FIELD_NUMBER: _ClassVar[int]
     NEW_STATUS_FIELD_NUMBER: _ClassVar[int]
     public_id: str
     new_status: CasinoFreeBetStatus
-    def __init__(self, public_id: _Optional[str] = ..., new_status: _Optional[_Union[CasinoFreeBetStatus, str]] = ...) -> None: ...
+    def __init__(
+        self,
+        public_id: str | None = ...,
+        new_status: CasinoFreeBetStatus | str | None = ...,
+    ) -> None: ...
 
 class GetExpiringRequest(_message.Message):
     __slots__ = ("hours_threshold",)
     HOURS_THRESHOLD_FIELD_NUMBER: _ClassVar[int]
     hours_threshold: int
-    def __init__(self, hours_threshold: _Optional[int] = ...) -> None: ...
+    def __init__(self, hours_threshold: int | None = ...) -> None: ...
 
 class FreebetResponse(_message.Message):
-    __slots__ = ("public_id", "name", "currency", "game_id", "unit_value", "quantity", "expiry_minutes", "status", "total_value", "expires_at", "is_expired")
+    __slots__ = (
+        "currency",
+        "expires_at",
+        "expiry_minutes",
+        "game_id",
+        "is_expired",
+        "name",
+        "public_id",
+        "quantity",
+        "status",
+        "total_value",
+        "unit_value",
+    )
     PUBLIC_ID_FIELD_NUMBER: _ClassVar[int]
     NAME_FIELD_NUMBER: _ClassVar[int]
     CURRENCY_FIELD_NUMBER: _ClassVar[int]
@@ -95,12 +135,29 @@ class FreebetResponse(_message.Message):
     total_value: str
     expires_at: str
     is_expired: bool
-    def __init__(self, public_id: _Optional[str] = ..., name: _Optional[str] = ..., currency: _Optional[str] = ..., game_id: _Optional[str] = ..., unit_value: _Optional[str] = ..., quantity: _Optional[int] = ..., expiry_minutes: _Optional[int] = ..., status: _Optional[str] = ..., total_value: _Optional[str] = ..., expires_at: _Optional[str] = ..., is_expired: bool = ...) -> None: ...
+    def __init__(
+        self,
+        public_id: str | None = ...,
+        name: str | None = ...,
+        currency: str | None = ...,
+        game_id: str | None = ...,
+        unit_value: str | None = ...,
+        quantity: int | None = ...,
+        expiry_minutes: int | None = ...,
+        status: str | None = ...,
+        total_value: str | None = ...,
+        expires_at: str | None = ...,
+        is_expired: bool = ...,
+    ) -> None: ...
 
 class FreebetListResponse(_message.Message):
-    __slots__ = ("freebets", "count")
+    __slots__ = ("count", "freebets")
     FREEBETS_FIELD_NUMBER: _ClassVar[int]
     COUNT_FIELD_NUMBER: _ClassVar[int]
     freebets: _containers.RepeatedCompositeFieldContainer[FreebetResponse]
     count: int
-    def __init__(self, freebets: _Optional[_Iterable[_Union[FreebetResponse, _Mapping]]] = ..., count: _Optional[int] = ...) -> None: ...
+    def __init__(
+        self,
+        freebets: _Iterable[FreebetResponse | _Mapping] | None = ...,
+        count: int | None = ...,
+    ) -> None: ...

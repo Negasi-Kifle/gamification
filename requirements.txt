@@ -1,8 +1,38 @@
+# Django Framework
 Django==6.0.1
+gunicorn==23.0.0
+
+# Database
 psycopg2-binary==2.9.11
+
+# gRPC
 grpcio==1.76.0
 grpcio-tools==1.76.0
 protobuf==6.33.5
+
+# Kafka
+confluent-kafka==2.13.0
+fastavro==1.12.1
+
+# OpenTelemetry
+opentelemetry-api==1.39.1
+opentelemetry-sdk==1.39.1
+opentelemetry-instrumentation-django==0.60b1
+opentelemetry-instrumentation-grpc==0.60b1
+opentelemetry-exporter-otlp==1.39.1
+
+# Testing
 pytest==9.0.2
 pytest-django==4.11.1
+coverage==7.4.0
+
+# Configuration
 python-dotenv==1.2.1
+
+# Linting & Formatting
+ruff==0.14.14
+pre-commit==4.5.1
+bandit==1.9.3
+
+# Migration Linting
+django-migration-linter==5.1.0
