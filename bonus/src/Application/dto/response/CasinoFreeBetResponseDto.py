@@ -1,13 +1,12 @@
 from dataclasses import dataclass
-from decimal import Decimal
-from typing import Optional
 from datetime import datetime
+from decimal import Decimal
 
 
 @dataclass
 class CasinoFreeBetResponseDto:
     """Output DTO for freebet operations."""
-    
+
     public_id: str
     name: str
     currency: str
@@ -17,5 +16,5 @@ class CasinoFreeBetResponseDto:
     expiry_minutes: int
     status: str
     total_value: Decimal
-    expires_at: Optional[datetime] = None
+    expires_at: datetime | None = None
     is_expired: bool = False

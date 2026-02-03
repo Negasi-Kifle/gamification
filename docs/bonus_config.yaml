@@ -1,27 +1,27 @@
 
 
-- Gamification -> Priority 
+- Gamification -> Priority
 
-    - Freebet upon sign up -> Casino, Sport 
-    - First time Deposit Bonus -> 
-    - Happy Hour Bonus 
-    - Tournament Bonus 
-
-
+    - Freebet upon sign up -> Casino, Sport
+    - First time Deposit Bonus ->
+    - Happy Hour Bonus
+    - Tournament Bonus
 
 
-- Reward Engine  
-
-    - Casino Freebet 
-    - Sport Freebet 
-    - Cash 
-    - Cash Bonus 
-    - In Kind 
 
 
-Casino Freebet -> 
+- Reward Engine
 
-    - id -> Primary BigInteger
+    - Casino Freebet
+    - Sport Freebet
+    - Cash
+    - Cash Bonus
+    - In Kind
+
+
+# Casino Freebet
+
+    # id -> Primary BigInteger
     - public_id -> UUID7
     - tenat_id - uuid7
     - name
@@ -37,9 +37,9 @@ Casino Freebet ->
     - created_at
     - updated_at
 
-SportFreebet  - 
+# SportFreebet
 
-  - id 
+  # id
   - public_id
   - tenant_id
   - currency
@@ -49,20 +49,20 @@ SportFreebet  -
   - quantity
 
 
-  # Wagering Requirements 
+  # Wagering Requirements
   - min_total_odd -> 4.5
   - individual_odd -> 1.15
   - min_number_of_matches -> 3
-  - max_payout_cap - Unlimlited, 5000 birr 
+  - max_payout_cap - Unlimlited, 5000 birr
 
-  # status 
+  # status
   - expiry_time -> integer in minutes
   - status -> Active, Inactive
 
   -  channel -> Online, Retail, Both
 
 
-Cash 
+Cash
     - id
     - public_id
     - tenant_id
@@ -83,19 +83,19 @@ CashBonus
     - name
     - description
 
-    - amount 
+    - amount
     - amount_value_type -> PERCENTAGE, FIXED
 
     # rollover requirements
-    - rollover_multiplier -> 
+    - rollover_multiplier ->
 
-    # Contribution requirement for casino 
-    - contribution_min_stake 
+    # Contribution requirement for casino
+    - contribution_min_stake
     - allowed_games_for_contribution -> list of game ids
     - disallowed_games_for_contribution -> list of game ids
 
     # Contribution requirement for sportsbook
-    - contribution_min_stake 
+    - contribution_min_stake
     - allowed_sports_for_contribution -> list of sport ids
     - disallowed_sports_for_contribution -> list of sport ids
     - min_total_odd -> float
@@ -120,7 +120,7 @@ InKind
 
     - name
     - description
-    - quantity 
+    - quantity
     - icon
     - status -> Active, Inactive
     - created_at
@@ -140,17 +140,17 @@ BonusCampaign
 
     - trigger -> Sign Up, Deposit,  CasinoBet, SPortBet
 
-    - condition 
-        - Deposit Condition 
+    - condition
+        - Deposit Condition
             - deposit_condition_type -> Deposit, Happy Hour Deposit
 
             - start_time, end_time - [ Happy Hour Deposit ]
             - days of the week - [ Happy Hour Deposit ]
             - min_deposit_amount - [ Deposit, Happy Hour Deposit ]
-            - player_deposit_count - [ Deposit] 
-        
+            - player_deposit_count - [ Deposit]
+
     - reward -> ForeignKey to RewardEngine
 
-    
+
     - created_at
     - updated_at

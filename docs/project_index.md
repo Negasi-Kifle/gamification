@@ -9,7 +9,12 @@ This repository contains the Gamification service - a Python (Django) monolith u
 ```
 gamification/
 ├── manage.py              # Django CLI entry point
-├── config/                # Django project configuration
+├── Dockerfile             # Container image definition
+├── docker-compose.yml     # Local development environment
+├── .gitlab-ci.yml         # CI/CD pipeline
+├── pyproject.toml         # Python project config (ruff, pytest)
+├── .pre-commit-config.yaml# Pre-commit hooks
+├── gamification/          # Django project configuration
 │   ├── settings.py        # Shared settings for all modules
 │   ├── urls.py            # Root URL router
 │   ├── wsgi.py            # WSGI entry point
@@ -17,26 +22,38 @@ gamification/
 ├── bonus/                 # Bonus module (clean architecture)
 │   ├── src/               # Source code
 │   │   ├── Domain/        # Entities, value objects, repository interfaces
-│   │   ├── Application/   # Use cases, DTOs
+│   │   ├── Application/   # Use cases, DTOs, jobs
 │   │   ├── Infrastructure/# Django ORM, repository implementations
 │   │   └── Presentation/  # REST views, gRPC servicers
 │   └── tests/             # Unit tests for all layers
-├── shared/                # Shared code (gRPC protos, server)
-│   └── grpc/
-│       ├── protos/        # Proto definitions
-│       ├── server.py      # gRPC server (registers all module servicers)
-│       ├── bonus_pb2.py   # Generated Python code
-│       └── bonus_pb2_grpc.py
+├── shared/                # Shared cross-cutting concerns
+│   ├── grpc/              # gRPC server and proto definitions
+│   ├── kafka/             # Kafka producer/consumer utilities
+│   ├── audit/             # Audit log publishing
+│   ├── logging/           # Structured JSON logging
+│   ├── middleware/        # Django middleware (correlation IDs)
+│   ├── scheduler/         # Scheduler job integration
+│   └── tracing/           # OpenTelemetry integration
 ├── docs/                  # Documentation
+│   ├── deploy.md          # Deployment guide
+│   └── ...
+├── CHANGELOG.md           # Release history
 └── TODO.md                # Task tracking
 ```
 
 ## Module Map
 
-- `config/`: Django project configuration (single instance for all modules).
+- `gamification/`: Django project configuration (single instance for all modules).
 - `bonus/`: Bonus module implementation (clean architecture layout inside `bonus/src`).
-- `shared/`: Shared utilities, proto definitions, and the gRPC server that registers all module servicers.
-- `docs/`: Requirements and schema notes (`technical_requirements.md`, `bonus_config.yaml`).
+- `shared/`: Shared cross-cutting concerns:
+  - `grpc/`: gRPC server and proto definitions
+  - `kafka/`: Kafka producer/consumer for event streaming
+  - `audit/`: Audit log and exception log publishing
+  - `logging/`: Structured JSON logging with correlation IDs
+  - `middleware/`: Django middleware for correlation IDs
+  - `scheduler/`: Job dispatcher and scheduler client
+  - `tracing/`: OpenTelemetry/Jaeger integration
+- `docs/`: Documentation (`technical_requirements.md`, `technical_guideline.md`, `deploy.md`, `bonus_config.yaml`).
 
 ## Planned Modules (per technical_requirements.md)
 
@@ -183,20 +200,92 @@ gamification/
 
 | Pattern | Status | Notes |
 |---------|--------|-------|
-| HTTP/REST | ✅ Implemented | Django views, CSRF exempt for API |
-| gRPC | 🟡 Partial | Servicer implemented, server runner missing |
-| Kafka | ⚪ Not Started | Required for event-driven communication |
+| HTTP/REST | ✅ Implemented | Django views with correlation ID middleware |
+| gRPC | ✅ Implemented | Server in `shared/grpc/server.py`, servicers registered |
+| Kafka | ✅ Implemented | Producer/consumer in `shared/kafka/`, Avro support |
+
+## Infrastructure Components
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| Docker | ✅ Implemented | Dockerfile, docker-compose.yml |
+| CI/CD | ✅ Implemented | GitLab CI with lint, test, build stages |
+| Structured Logging | ✅ Implemented | JSON format with correlation IDs |
+| Audit Logging | ✅ Implemented | Publishes to audit-logs, exception-logs topics |
+| Scheduler Integration | ✅ Implemented | Job dispatcher in Application layer |
+| Tracing | ✅ Implemented | OpenTelemetry with Jaeger exporter |
+| Migration Linting | ✅ Implemented | django-migration-linter integrated |
+
+## Shared Module Index
+
+### `shared/logging/`
+Structured JSON logging per guideline §9.
+- `formatter.py`: JsonFormatter with standard fields (timestamp, level, event, trace_id, request_id, tenant_id, service)
+- `context.py`: LogContext for managing correlation IDs
+
+### `shared/middleware/`
+Django middleware per guideline §9.
+- `correlation.py`: CorrelationIdMiddleware extracts/generates request_id, trace_id, tenant_id
+
+### `shared/kafka/`
+Kafka integration per guideline §5, §6.
+- `config.py`: KafkaConfig from environment
+- `producer.py`: KafkaProducer with Avro serialization
+- `consumer.py`: KafkaConsumer for event handling
+- `serializers.py`: AvroSerializer, JsonSerializer
+
+### `shared/audit/`
+Audit logging per guideline §6.
+- `models.py`: AuditLogMessage, ExceptionLogMessage
+- `publisher.py`: AuditPublisher, ExceptionPublisher
+
+### `shared/scheduler/`
+Scheduler integration per guideline §8.
+- `dispatcher.py`: JobDispatcher maps job names to handlers
+- `client.py`: SchedulerClient for reporting job status
+
+### `shared/tracing/`
+OpenTelemetry integration per tech requirements.
+- `setup.py`: init_tracing with Jaeger exporter
+- `utils.py`: create_span, get_current_trace_id
 
 ## Dependencies
 
 ```
+# Django Framework
 Django==6.0.1
+gunicorn==23.0.0
+
+# Database
 psycopg2-binary==2.9.11
+
+# gRPC
 grpcio==1.76.0
 grpcio-tools==1.76.0
 protobuf==6.33.5
+
+# Kafka
+confluent-kafka==2.3.0
+fastavro==1.9.3
+
+# OpenTelemetry
+opentelemetry-api==1.22.0
+opentelemetry-sdk==1.22.0
+opentelemetry-instrumentation-django==0.43b0
+opentelemetry-instrumentation-grpc==0.43b0
+opentelemetry-exporter-jaeger==1.21.0
+
+# Testing
 pytest==9.0.2
 pytest-django==4.11.1
+coverage==7.4.0
+
+# Linting & Formatting
+ruff==0.3.0
+pre-commit==3.6.0
+bandit==1.7.7
+django-migration-linter==5.1.0
+
+# Configuration
 python-dotenv==1.2.1
 ```
-

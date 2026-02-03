@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class FreebetCurrency(str, Enum):
     ETB = "ETB"
     SZL = "SZL"

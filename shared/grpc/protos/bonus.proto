@@ -6,10 +6,10 @@ package bonus;
 service CasinoFreeBetService {
     // Create a new casino freebet
     rpc CreateFreebet(CreateFreebetRequest) returns (FreebetResponse);
-    
+
     // Update freebet status (activate/deactivate)
     rpc UpdateStatus(UpdateStatusRequest) returns (FreebetResponse);
-    
+
     // Get freebets expiring soon (for notifications)
     rpc GetExpiring(GetExpiringRequest) returns (FreebetListResponse);
 }

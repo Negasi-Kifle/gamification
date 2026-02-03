@@ -1,3 +1,3 @@
-from .views import CasinoFreeBetListCreateView, CasinoFreeBetDetailView
+from .views import CasinoFreeBetDetailView, CasinoFreeBetListCreateView
 
-__all__ = ["CasinoFreeBetListCreateView", "CasinoFreeBetDetailView"]
+__all__ = ["CasinoFreeBetDetailView", "CasinoFreeBetListCreateView"]
