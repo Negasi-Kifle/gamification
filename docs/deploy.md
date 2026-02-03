@@ -97,10 +97,10 @@ kubectl exec -n gamification deploy/gamification-api -- \
 
 ```bash
 # Pull latest image
-docker-compose pull
+docker compose pull
 
 # Deploy with zero downtime
-docker-compose up -d --no-deps gamification-api gamification-grpc
+docker compose up -d --no-deps gamification-api gamification-grpc
 ```
 
 #### Kubernetes (Production)
@@ -192,7 +192,7 @@ kubectl set image deployment/gamification-api \
   -n gamification
 
 # Docker Compose
-docker-compose up -d --no-deps gamification-api gamification-grpc
+docker compose up -d --no-deps gamification-api gamification-grpc
 ```
 
 #### 2. Rollback Migrations (if needed)
