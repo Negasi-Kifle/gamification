@@ -45,6 +45,21 @@ def create_server(port: int = 50051, max_workers: int = 10) -> grpc.Server:
     # Ensure Django is set up before importing Django-dependent modules
     _setup_django()
 
+    try:
+        from django.conf import settings as django_settings
+
+        from shared.tracing import init_tracing
+
+        if getattr(django_settings, "OTEL_ENABLED", False):
+            init_tracing(
+                service_name=getattr(django_settings, "OTEL_SERVICE_NAME", None),
+                service_version=getattr(django_settings, "OTEL_SERVICE_VERSION", None),
+                jaeger_endpoint=getattr(django_settings, "JAEGER_ENDPOINT", None),
+                enabled=True,
+            )
+    except ImportError:
+        pass
+
     # Add correlation interceptor for request_id, trace_id, tenant_id
     from shared.middleware.correlation_grpc import GrpcCorrelationInterceptor
 

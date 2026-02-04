@@ -39,6 +39,10 @@ def init_tracing(
     """
     global _tracer_provider  # noqa: PLW0603
 
+    if _tracer_provider is not None:
+        logger.debug("OpenTelemetry tracing already initialized")
+        return True
+
     # Check if tracing is enabled
     if enabled is None:
         enabled = os.environ.get("OTEL_ENABLED", "false").lower() in (

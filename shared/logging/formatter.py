@@ -7,6 +7,8 @@ Implements structured logging per technical:
 - Log level configurable via LOG_LEVEL environment variable
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os

@@ -1,8 +1,12 @@
+from __future__ import annotations
+
 import contextvars
 import uuid
-from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # Context variable for storing log context
 _log_context: contextvars.ContextVar[dict[str, Any]] = contextvars.ContextVar(
@@ -42,7 +46,7 @@ class LogContext:
         self.context.update(extra)
         self._token: contextvars.Token | None = None
 
-    def __enter__(self) -> "LogContext":
+    def __enter__(self) -> LogContext:
         # Merge with existing context
         current = _log_context.get()
         new_context = {**current, **self.context}
