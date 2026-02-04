@@ -81,7 +81,7 @@ docker compose logs -f
 # View logs for specific service
 docker compose logs -f kafka
 docker compose logs -f jaeger
-docker compose logs -f gamification-api
+docker compose logs -f gamification-restful
 
 # Check health status
 docker compose ps
@@ -168,7 +168,7 @@ After starting PostgreSQL, run Django migrations:
 
 ```bash
 # If running app in Docker
-docker compose exec gamification-api python manage.py migrate
+docker compose exec gamification-restful python manage.py migrate
 
 # If running app locally
 python manage.py migrate

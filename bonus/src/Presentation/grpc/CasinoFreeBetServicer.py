@@ -103,16 +103,16 @@ class CasinoFreeBetServicer(bonus_pb2_grpc.CasinoFreeBetServiceServicer):
             use_case = CreateCasinoFreeBetUseCase(self.repository)
             result = use_case.execute(request_dto)
 
-            logger.info(f"gRPC CreateFreebet success: {result.public_id}")
+            logger.info(f"gRPC CreateCasinoFreebet success: {result.public_id}")
             return self._to_proto_response(result)
 
         except ValueError as e:
-            logger.warning(f"gRPC CreateFreebet validation error: {e}")
+            logger.warning(f"gRPC CreateCasinoFreebet validation error: {e}")
             context.set_code(400)  # INVALID_ARGUMENT
             context.set_details(str(e))
             return self._empty_response()
         except Exception as e:
-            logger.exception(f"gRPC CreateFreebet internal error: {e}")
+            logger.exception(f"gRPC CreateCasinoFreebet internal error: {e}")
             context.set_code(500)  # INTERNAL
             context.set_details(f"Internal error: {e!s}")
             return self._empty_response()

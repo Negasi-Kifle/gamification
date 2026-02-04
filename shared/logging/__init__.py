@@ -13,16 +13,14 @@ Usage:
 
 from shared.logging.context import LogContext, log_context
 from shared.logging.formatter import (
-    JsonFormatter,
-    StructuredLogRecord,
+    LogJsonFormatter,
     configure_logging,
     get_logger,
 )
 
 __all__ = [
-    "JsonFormatter",
+    "LogJsonFormatter",
     "LogContext",
-    "StructuredLogRecord",
     "configure_logging",
     "get_logger",
     "log_context",

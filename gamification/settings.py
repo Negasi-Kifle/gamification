@@ -156,7 +156,7 @@ LOGGING = {
     "disable_existing_loggers": False,
     "formatters": {
         "json": {
-            "()": "shared.logging.formatter.JsonFormatter",
+            "()": "shared.logging.formatter.LogJsonFormatter",
         },
         "verbose": {
             "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",

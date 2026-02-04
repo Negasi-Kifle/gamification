@@ -45,7 +45,14 @@ def create_server(port: int = 50051, max_workers: int = 10) -> grpc.Server:
     # Ensure Django is set up before importing Django-dependent modules
     _setup_django()
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=max_workers))
+    # Add correlation interceptor for request_id, trace_id, tenant_id
+    from shared.middleware.correlation_grpc import GrpcCorrelationInterceptor
+
+    interceptor = GrpcCorrelationInterceptor()
+    server = grpc.server(
+        futures.ThreadPoolExecutor(max_workers=max_workers),
+        interceptors=[interceptor],
+    )
 
     # Register all module servicers
     _register_bonus_servicer(server)

@@ -69,6 +69,8 @@ services:
         condition: service_healthy
     networks:
       - gamification-network
+    volumes:
+      - .:/app:ro  # Read-only mount for development hot-reload (remove in production)
     restart: unless-stopped
 
 

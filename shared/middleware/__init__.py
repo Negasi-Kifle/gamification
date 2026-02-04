@@ -6,8 +6,10 @@ Provides middleware for:
 - Request/response logging
 """
 
-from shared.middleware.correlation import CorrelationIdMiddleware
+from shared.middleware.correlation_grpc import GrpcCorrelationInterceptor
+from shared.middleware.correlation_restful import CorrelationIdMiddleware
 
 __all__ = [
     "CorrelationIdMiddleware",
+    "GrpcCorrelationInterceptor",
 ]
