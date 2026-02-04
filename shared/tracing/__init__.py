@@ -6,7 +6,7 @@ Per technical requirements:
 - Jaeger for distributed tracing
 
 Usage:
-    # Initialize at application startup (e.g., in settings.py or wsgi.py)
+    # Initialize at application startup (e.g., in settings.py or wsgi.py or grpc server)
     from shared.tracing import init_tracing
     init_tracing()
 

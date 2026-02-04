@@ -1,9 +1,3 @@
-"""
-OpenTelemetry tracing utilities.
-
-Provides helper functions for creating spans and extracting trace context.
-"""
-
 import logging
 from collections.abc import Generator
 from contextlib import contextmanager

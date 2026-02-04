@@ -1,12 +1,3 @@
-"""
-JSON structured logging formatter.
-
-Implements structured logging per technical:
-- One JSON object per log line
-- Standard fields: timestamp, level, event/message, trace_id, request_id, tenant_id, service
-- Log level configurable via LOG_LEVEL environment variable
-"""
-
 from __future__ import annotations
 
 import json
@@ -16,6 +7,66 @@ from datetime import UTC, datetime
 from typing import Any, ClassVar
 
 from shared.logging.context import LogContext
+
+
+class StructuredLogRecord:
+    """
+    Represents a structured log record with standard fields.
+
+    Fields per technical:
+    - timestamp: ISO 8601 format
+    - level: debug, info, warning, error
+    - event/message: Short description
+    - trace_id: Optional, Jaeger/OpenTelemetry trace ID
+    - request_id: Optional, per-request correlation ID
+    - tenant_id: Optional, tenant identifier
+    - service: Optional, service name (e.g., 'gamification')
+    """
+
+    def __init__(
+        self,
+        level: str,
+        event: str,
+        trace_id: str | None = None,
+        request_id: str | None = None,
+        tenant_id: str | None = None,
+        service: str | None = None,
+        **extra: Any,
+    ):
+        self.timestamp = datetime.now(UTC).isoformat()
+        self.level = level.lower()
+        self.event = event
+        self.trace_id = trace_id
+        self.request_id = request_id
+        self.tenant_id = tenant_id
+        self.service = service or os.environ.get("SERVICE_NAME", "gamification")
+        self.extra = extra
+
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        record = {
+            "timestamp": self.timestamp,
+            "level": self.level,
+            "event": self.event,
+            "service": self.service,
+        }
+
+        # Add optional correlation IDs if present
+        if self.trace_id:
+            record["trace_id"] = self.trace_id
+        if self.request_id:
+            record["request_id"] = self.request_id
+        if self.tenant_id:
+            record["tenant_id"] = self.tenant_id
+
+        # Add any extra fields
+        record.update(self.extra)
+
+        return record
+
+    def to_json(self) -> str:
+        """Serialize to JSON string."""
+        return json.dumps(self.to_dict(), default=str)
 
 
 class LogJsonFormatter(logging.Formatter):

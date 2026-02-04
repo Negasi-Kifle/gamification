@@ -29,7 +29,7 @@ class AuditPublisher:
     Usage:
         audit = AuditPublisher()
         audit.log(
-            action=AuditAction.FREEBET_CREATED,
+            action=AuditAction.CASINO_FREEBET_CREATED,
             entity_type="CasinoFreeBet",
             entity_id="abc-123",
             tenant_id="t1",

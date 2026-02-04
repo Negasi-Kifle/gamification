@@ -1,11 +1,3 @@
-"""
-Message serializers for Kafka.
-
-Supports:
-- JSON serialization (fallback)
-- Avro serialization with Schema Registry (recommended)
-"""
-
 import json
 import logging
 from abc import ABC, abstractmethod

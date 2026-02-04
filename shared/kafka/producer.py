@@ -1,12 +1,3 @@
-"""
-Kafka producer for publishing messages.
-
-Per technical guideline §5, §6:
-- Publishes events to Kafka topics
-- Supports Avro serialization with Schema Registry
-- Used for audit logs, exception logs, and domain events
-"""
-
 import logging
 from collections.abc import Callable
 from typing import Any

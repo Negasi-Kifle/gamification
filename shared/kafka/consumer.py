@@ -1,14 +1,6 @@
-"""
-Kafka consumer for receiving messages.
-
-Per technical guideline §5:
-- Consumes events from Kafka topics
-- Supports Avro deserialization with Schema Registry
-- Used for event-driven communication with other services
-"""
-
 import logging
 from collections.abc import Callable, Generator
+from dataclasses import dataclass, field
 from typing import Any
 
 from shared.kafka.config import KafkaConfig
@@ -17,6 +9,7 @@ from shared.kafka.serializers import AvroSerializer, JsonSerializer, MessageSeri
 logger = logging.getLogger(__name__)
 
 
+@dataclass(repr=False)
 class KafkaMessage:
     """
     Wrapper for consumed Kafka messages.
@@ -31,23 +24,13 @@ class KafkaMessage:
         timestamp: Message timestamp
     """
 
-    def __init__(
-        self,
-        topic: str,
-        partition: int,
-        offset: int,
-        key: str | None,
-        value: dict[str, Any],
-        headers: dict[str, str] | None,
-        timestamp: int | None,
-    ):
-        self.topic = topic
-        self.partition = partition
-        self.offset = offset
-        self.key = key
-        self.value = value
-        self.headers = headers or {}
-        self.timestamp = timestamp
+    topic: str
+    partition: int
+    offset: int
+    key: str | None
+    value: dict[str, Any]
+    headers: dict[str, str] = field(default_factory=dict)
+    timestamp: int | None = None
 
     def __repr__(self) -> str:
         return f"KafkaMessage(topic={self.topic}, partition={self.partition}, offset={self.offset})"

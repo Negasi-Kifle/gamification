@@ -22,12 +22,12 @@ class AuditAction(str, Enum):
     """
 
     # Freebet actions
-    FREEBET_CREATED = "freebet_created"
-    FREEBET_ACTIVATED = "freebet_activated"
-    FREEBET_DEACTIVATED = "freebet_deactivated"
-    FREEBET_USED = "freebet_used"
-    FREEBET_EXPIRED = "freebet_expired"
-    FREEBET_DELETED = "freebet_deleted"
+    CASINO_FREEBET_CREATED = "casino_freebet_created"
+    CASINO_FREEBET_ACTIVATED = "casino_freebet_activated"
+    CASINO_FREEBET_DEACTIVATED = "casino_freebet_deactivated"
+    CASINO_FREEBET_USED = "casino_freebet_used"
+    CASINO_FREEBET_EXPIRED = "casino_freebet_expired"
+    CASINO_FREEBET_DELETED = "casino_freebet_deleted"
 
     # Campaign actions (future)
     CAMPAIGN_CREATED = "campaign_created"

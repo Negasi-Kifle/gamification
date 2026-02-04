@@ -1,13 +1,3 @@
-"""
-OpenTelemetry tracing setup and configuration.
-
-Initializes the OpenTelemetry SDK with:
-- Resource attributes (service name, version)
-- Trace provider
-- Jaeger exporter (or OTLP exporter)
-- Django instrumentation
-"""
-
 import logging
 import os
 
