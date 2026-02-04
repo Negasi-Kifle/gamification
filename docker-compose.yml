@@ -1,21 +1,19 @@
 # Docker Compose for Gamification Service
 # Local development environment with all dependencies
 
-version: '3.8'
-
 services:
   # Main application service (HTTP/REST)
-  gamification-api:
+  gamification-restful:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: gamification-api
+    container_name: gamification-restful
     ports:
       - "8000:8000"
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-django-insecure-dev-key-change-in-production}
       - DJANGO_DEBUG=${DJANGO_DEBUG:-True}
-      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,gamification-api
+      - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,gamification-restful
       - DB_ENGINE=django.db.backends.postgresql
       - DB_NAME=${DB_NAME:-gamification}
       - POSTGRES_USER=${POSTGRES_USER:-postgres}
@@ -42,6 +40,7 @@ services:
     volumes:
       - .:/app:ro  # Read-only mount for development hot-reload (remove in production)
     restart: unless-stopped
+
 
   # gRPC server service
   gamification-grpc:
@@ -70,7 +69,10 @@ services:
         condition: service_healthy
     networks:
       - gamification-network
+    volumes:
+      - .:/app:ro  # Read-only mount for development hot-reload (remove in production)
     restart: unless-stopped
+
 
   # PostgreSQL database
   postgres:
@@ -93,22 +95,6 @@ services:
       - gamification-network
     restart: unless-stopped
 
-  # Redis (for caching, optional)
-  redis:
-    image: redis:7-alpine
-    container_name: gamification-redis
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - gamification-network
-    restart: unless-stopped
 
   # Kafka (for event streaming)
   zookeeper:
@@ -185,4 +171,3 @@ networks:
 
 volumes:
   postgres-data:
-  redis-data:

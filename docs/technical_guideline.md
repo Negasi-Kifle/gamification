@@ -14,23 +14,25 @@
 
 *Table format: **§** = section number (— = unnumbered); **Section** = link to heading.*
 
-| § | Section |
-|---|---------|
-| — | [Who builds what](#who-builds-what) |
-| 1 | [Source of truth](#1-source-of-truth) |
-| 2 | [Release (CI)](#2-release-ci) |
-| 3 | [.NET: consume](#3-net-consume) |
-| 4 | [Django: consume](#4-django-consume) |
-| 5 | [Avro (Kafka / Redpanda)](#5-avro-kafka--redpanda) |
-| 6 | [Audit: stream to audit service](#6-audit-stream-to-audit-service) |
-| 7 | [Django migrations](#7-django-migrations) |
-| 8 | [Scheduler (cron jobs)](#8-scheduler-cron-jobs-integration) |
-| 9 | [Structured logging](#9-structured-logging) |
-| 10 | [PR and code review](#10-pr-and-code-review) |
-| 11 | [ID and enum standards](#11-id-and-enum-standards) |
-| 12 | [After each deployment](#12-after-each-deployment) |
-| 13 | [Final review (started project)](#13-final-review-started-project) |
-| — | [Other considerations](#other-considerations) · [Summary](#summary) · [Project review: Gamification](project_review.md) |
+
+| §   | Section                                                                                                                 |
+| --- | ----------------------------------------------------------------------------------------------------------------------- |
+| —   | [Who builds what](#who-builds-what)                                                                                     |
+| 1   | [Source of truth](#1-source-of-truth)                                                                                   |
+| 2   | [Release (CI)](#2-release-ci)                                                                                           |
+| 3   | [.NET: consume](#3-net-consume)                                                                                         |
+| 4   | [Django: consume](#4-django-consume)                                                                                    |
+| 5   | [Avro (Kafka / Redpanda)](#5-avro-kafka--redpanda)                                                                      |
+| 6   | [Audit: stream to audit service](#6-audit-stream-to-audit-service)                                                      |
+| 7   | [Django migrations](#7-django-migrations)                                                                               |
+| 8   | [Scheduler (cron jobs)](#8-scheduler-cron-jobs-integration)                                                             |
+| 9   | [Structured logging](#9-structured-logging)                                                                             |
+| 10  | [PR and code review](#10-pr-and-code-review)                                                                            |
+| 11  | [ID and enum standards](#11-id-and-enum-standards)                                                                      |
+| 12  | [After each deployment](#12-after-each-deployment)                                                                      |
+| 13  | [Final review (started project)](#13-final-review-started-project)                                                      |
+| —   | [Other considerations](#other-considerations) · [Summary](#summary) · [Project review: Gamification](project_review.md) |
+
 
 ---
 
@@ -46,10 +48,12 @@
 
 *Table format: **Area** = topic; **Recommended** = preferred option; **Fallback** = alternative if recommended not used.*
 
-| Area | Recommended | Fallback |
-|------|-------------|----------|
-| **gRPC (protos)** | Publish from convex-contracts as NuGet + pip | — |
+
+| Area                                    | Recommended                                                                      | Fallback                                       |
+| --------------------------------------- | -------------------------------------------------------------------------------- | ---------------------------------------------- |
+| **gRPC (protos)**                       | Publish from convex-contracts as NuGet + pip                                     | —                                              |
 | **Avro (Kafka/Redpanda event schemas)** | Use a Schema Registry (e.g. Confluent); publish from convex-contracts on release | Ship `.avsc` files inside NuGet + pip packages |
+
 
 ---
 
@@ -98,15 +102,12 @@ dotnet nuget push ./nupkgs/*.nupkg --source "GitLab" --api-key $CI_JOB_TOKEN
 **How .NET services use the shared contracts:**
 
 1. **Add the GitLab NuGet source** in `nuget.config` (solution or repo root). Example:
-
-   ```xml
+  ```xml
    <packageSources>
      <add key="GitLab" value="https://gitlab.com/api/v4/projects/<PROJECT_ID>/packages/nuget/index.json" />
    </packageSources>
-   ```
-
+  ```
 2. **Authentication:** Use a token (e.g. CI `CI_JOB_TOKEN` or a deploy token) with `read_package_registry` permission. In CI, pass it via `--api-key` or via NuGet config; locally, use `dotnet nuget add source` with the key or store credentials in the config.
-
 3. **Reference the package** in your `.csproj` (pin the version; avoid floating unless you have a reason):
 
 **Package reference:**
@@ -131,17 +132,17 @@ After restore, use the generated C# types and gRPC clients from the package name
 convex-grpc-contracts==1.2.0
 ```
 
-2. **In code,** import the generated gRPC stubs and use them in your servicers and clients:
+1. **In code,** import the generated gRPC stubs and use them in your servicers and clients:
 
 ```python
 from convex_grpc_contracts import bonus_pb2_grpc, identity_pb2_grpc
 # Use bonus_pb2 for message types, bonus_pb2_grpc for servicer base classes and stubs
 ```
 
-3. **Private registry:** If the package is hosted on GitLab PyPI or another private index, configure pip before install:
-   - **Environment:** Set `PIP_INDEX_URL` and `PIP_EXTRA_INDEX_URL` (or `PIP_INDEX_URL` plus a token in the URL) in CI and local env.
-   - **pip.conf / pip.ini:** Add an `[global]` or `[install]` section with `extra-index-url` and optionally `trusted-host`.
-   - **CI:** Use a CI variable (e.g. `CI_JOB_TOKEN` or a deploy token) in the index URL so `pip install -r requirements.txt` can pull the package.
+1. **Private registry:** If the package is hosted on GitLab PyPI or another private index, configure pip before install:
+  - **Environment:** Set `PIP_INDEX_URL` and `PIP_EXTRA_INDEX_URL` (or `PIP_INDEX_URL` plus a token in the URL) in CI and local env.
+  - **pip.conf / pip.ini:** Add an `[global]` or `[install]` section with `extra-index-url` and optionally `trusted-host`.
+  - **CI:** Use a CI variable (e.g. `CI_JOB_TOKEN` or a deploy token) in the index URL so `pip install -r requirements.txt` can pull the package.
 
 ---
 
@@ -176,6 +177,7 @@ from convex_grpc_contracts import bonus_pb2_grpc, identity_pb2_grpc
 Gamification (and other services) send audit and exception logs to **AuditReport** via Kafka. AuditReport consumes these and stores them (e.g. in ClickHouse, ScyllaDB, or Elasticsearch).
 
 **When to publish:**
+
 - **audit-logs:** After important actions (e.g. freebet created, status updated, user action). One message per logical event.
 - **exception-logs:** When an exception or error occurs that you want to track centrally (e.g. unhandled exception, validation failure, or business-rule violation). Include enough context (service, tenant, request/trace id) for debugging.
 
@@ -183,12 +185,14 @@ Gamification (and other services) send audit and exception logs to **AuditReport
 
 *Table format: **Item** = topic; **Detail** = what to do or use.*
 
-| Item | Detail |
-|------|--------|
-| **Topics** | `audit-logs`, `exception-logs` |
-| **Other services** | Identity, Payment, Localization, SportBook use `Convex.AuditReport.Contracts`; use the **same message shape**. |
+
+| Item                      | Detail                                                                                                                                                                                             |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Topics**                | `audit-logs`, `exception-logs`                                                                                                                                                                     |
+| **Other services**        | Identity, Payment, Localization, SportBook use `Convex.AuditReport.Contracts`; use the **same message shape**.                                                                                     |
 | **Gamification (Django)** | Publish to `audit-logs` after important actions; to `exception-logs` on exceptions. Match AuditReport.Contracts fields (Id, ServiceName, TenantId, Action, EntityType, EntityId, CreatedAt, etc.). |
-| **Config** | `KAFKA_BOOTSTRAP_SERVERS`, `AUDIT_LOGS_TOPIC=audit-logs`, `EXCEPTION_LOGS_TOPIC=exception-logs` |
+| **Config**                | `KAFKA_BOOTSTRAP_SERVERS`, `AUDIT_LOGS_TOPIC=audit-logs`, `EXCEPTION_LOGS_TOPIC=exception-logs`                                                                                                    |
+
 
 ---
 
@@ -200,11 +204,13 @@ Gamification (and other services) send audit and exception logs to **AuditReport
 
 *Table format: **Action** = step; **Command** = what to run.*
 
-| Action | Command |
-|--------|--------|
-| Install | `pip install django-migration-linter` |
-| Run | `python manage.py lintmigrations` (add to CI) |
+
+| Action   | Command                                                         |
+| -------- | --------------------------------------------------------------- |
+| Install  | `pip install django-migration-linter`                           |
+| Run      | `python manage.py lintmigrations` (add to CI)                   |
 | Optional | `django-linear-migrations` — one linear migration chain per app |
+
 
 **Practices:**
 
@@ -225,10 +231,12 @@ Same pattern as Identity and Payment: register jobs with the Scheduler; implemen
 
 *Table format: **Item** = topic; **Detail** = description or config.*
 
-| Item | Detail |
-|------|--------|
-| **Flow** | 1) Register jobs (CreateJob: target_service=gamification, target_endpoint). 2) Scheduler calls target when due. 3) Target runs task and reports status (ReportJobProcessing / Completed / Failed). |
-| **Config** | `SCHEDULER_SERVICE_URL`; use same scheduler protos from convex-contracts. |
+
+| Item       | Detail                                                                                                                                                                                             |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Flow**   | 1) Register jobs (CreateJob: target_service=gamification, target_endpoint). 2) Scheduler calls target when due. 3) Target runs task and reports status (ReportJobProcessing / Completed / Failed). |
+| **Config** | `SCHEDULER_SERVICE_URL`; use same scheduler protos from convex-contracts.                                                                                                                          |
+
 
 **Clean code:** Put the job dispatcher (factory) in the **Application** layer (e.g. `bonus/src/Application/jobs/`). It maps `job_name` (string from the request) to the right use case or callable (e.g. `expiring-freebets-notification` → `GetExpiringCasinoFreeBetsUseCase` plus notification sending). The Presentation layer (gRPC servicer or HTTP view) only: receives the request, parses job name, calls the factory to get the handler, runs it, then calls ReportJobCompleted or ReportJobFailed. No job logic in Presentation.
 
@@ -242,16 +250,18 @@ Same pattern as Identity and Payment: register jobs with the Scheduler; implemen
 
 *Table format: **Field** = log key; **Type** = value type; **Description** = when to use.*
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `timestamp` | string | ISO 8601 |
-| `level` | string | `debug`, `info`, `warning`, `error` |
-| `event` or `message` | string | Short description |
-| `trace_id` | string | Optional; Jaeger/OpenTelemetry |
-| `request_id` | string | Optional; per-request |
-| `tenant_id` | string | Optional |
-| `service` | string | Optional; e.g. `gamification` |
-| *(extra)* | * | Any other key-value fields |
+
+| Field                | Type   | Description                         |
+| -------------------- | ------ | ----------------------------------- |
+| `timestamp`          | string | ISO 8601                            |
+| `level`              | string | `debug`, `info`, `warning`, `error` |
+| `event` or `message` | string | Short description                   |
+| `trace_id`           | string | Optional; Jaeger/OpenTelemetry      |
+| `request_id`         | string | Optional; per-request               |
+| `tenant_id`          | string | Optional                            |
+| `service`            | string | Optional; e.g. `gamification`       |
+| *(extra)*            | *      | Any other key-value fields          |
+
 
 **Log level:** Configurable per environment via `LOG_LEVEL`. Read it in Django settings (e.g. `os.environ.get('LOG_LEVEL', 'INFO')`) and set the root logger or your app logger level accordingly (e.g. `logging.getLogger().setLevel(getattr(logging, LOG_LEVEL))`). Do not hardcode log level in code.
 
@@ -259,11 +269,13 @@ Same pattern as Identity and Payment: register jobs with the Scheduler; implemen
 
 *Table format: **Environment** = deployment context; **Example** = suggested `LOG_LEVEL` value.*
 
-| Environment | Example |
-|-------------|---------|
-| Production | `LOG_LEVEL=info` or `LOG_LEVEL=warning` |
-| QA | `LOG_LEVEL=info` or `LOG_LEVEL=debug` |
-| Development | `LOG_LEVEL=debug` |
+
+| Environment | Example                                 |
+| ----------- | --------------------------------------- |
+| Production  | `LOG_LEVEL=info` or `LOG_LEVEL=warning` |
+| QA          | `LOG_LEVEL=info` or `LOG_LEVEL=debug`   |
+| Development | `LOG_LEVEL=debug`                       |
+
 
 **Sample log lines:**
 
@@ -281,16 +293,18 @@ Same pattern as Identity and Payment: register jobs with the Scheduler; implemen
 
 *Table format: **Check** = what to verify; **Requirement** = must be satisfied for merge.*
 
-| Check | Requirement |
-|-------|-------------|
-| **Review** | At least one approval; scope and design checked. |
-| **Unit tests** | Mandatory for new and changed code before merge. |
+
+| Check                  | Requirement                                                            |
+| ---------------------- | ---------------------------------------------------------------------- |
+| **Review**             | At least one approval; scope and design checked.                       |
+| **Unit tests**         | Mandatory for new and changed code before merge.                       |
 | **Clean architecture** | Domain: no HTTP/DB/gRPC; Application: no DB/HTTP; dependencies inward. |
-| **Tech stack** | gRPC, Kafka, shared .proto/schema checked. |
-| **Migrations** | `makemigrations --check --dry-run` and `lintmigrations` pass in CI. |
-| **Lint / format** | Linter and formatter pass (e.g. ruff, black). |
-| **Structured logging** | Follow §9; do not log PII (personally identifiable information). |
-| **Secrets** | No secrets in code; use env or config. |
+| **Tech stack**         | gRPC, Kafka, shared .proto/schema checked.                             |
+| **Migrations**         | `makemigrations --check --dry-run` and `lintmigrations` pass in CI.    |
+| **Lint / format**      | Linter and formatter pass (e.g. ruff, black).                          |
+| **Structured logging** | Follow §9; do not log PII (personally identifiable information).       |
+| **Secrets**            | No secrets in code; use env or config.                                 |
+
 
 **Max PR turnaround:** Every PR must be reviewed and either merged or closed within **24 hours**. Assign a reviewer when opening the PR; reviewers should prioritise and respond same day.
 
@@ -306,11 +320,13 @@ Same pattern as Identity and Payment: register jobs with the Scheduler; implemen
 
 *Table format: **Rule** = category; **Detail** = what to do.*
 
-| Rule | Detail |
-|------|--------|
-| **Primary key** | Use an internal `id` (e.g. BigAutoField / auto-increment) as the primary key. All foreign keys between tables reference this `id`. Never expose `id` in public APIs or event payloads. |
-| **Public ID** | For any entity that is exposed via APIs or to other systems, add a **public_id** (GUID/UUID). Generate it once on creation (e.g. `uuid.uuid4()`). External references, API request/response bodies, and cross-service messages use **public_id** only, never the internal `id`. This keeps internal DB details hidden and allows refactoring of primary keys. |
-| **Enums in table** | Domain enums (e.g. status, currency, type) are stored as a column in the table (e.g. CharField with choices). The values in code (e.g. Python enum or string constants) and the DB column values must match exactly so that reads/writes are consistent. Use the same string in API responses if you expose the enum. |
+
+| Rule               | Detail                                                                                                                                                                                                                                                                                                                                                        |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Primary key**    | Use an internal `id` (e.g. BigAutoField / auto-increment) as the primary key. All foreign keys between tables reference this `id`. Never expose `id` in public APIs or event payloads.                                                                                                                                                                        |
+| **Public ID**      | For any entity that is exposed via APIs or to other systems, add a **public_id** (GUID/UUID). Generate it once on creation (e.g. `uuid.uuid4()`). External references, API request/response bodies, and cross-service messages use **public_id** only, never the internal `id`. This keeps internal DB details hidden and allows refactoring of primary keys. |
+| **Enums in table** | Domain enums (e.g. status, currency, type) are stored as a column in the table (e.g. CharField with choices). The values in code (e.g. Python enum or string constants) and the DB column values must match exactly so that reads/writes are consistent. Use the same string in API responses if you expose the enum.                                         |
+
 
 ---
 
@@ -320,13 +336,15 @@ Same pattern as Identity and Payment: register jobs with the Scheduler; implemen
 
 *Table format: **What** = item to document; **Where / how** = file or practice.*
 
-| What | Where / how |
-|------|-------------|
-| **Changelog / release notes** | Update `CHANGELOG.md` with version, date, and a short list of changes (features, fixes, breaking changes). Example: `## 1.2.0 (2026-02-02) - Added expiring freebets job; fixed public_id type in entity.` |
-| **Deploy steps** | Document in `docs/deploy.md` or README: order of steps (e.g. backup → migrate → deploy → health check), which env vars are required, how to run migrations, and how to verify the deployment. |
-| **What was deployed** | Tag the commit (e.g. `v1.2.0`) and attach release notes describing what the tag contains. In CI/CD, deploy from the tag or from a release artefact so what’s in production is traceable. |
-| **Config / env** | List new or changed environment variables, config files, or secrets (names and purpose; never put secret values in the doc). Note any defaults and which environments they apply to. |
-| **Rollback** | Document how to roll back: e.g. “Redeploy previous image tag `v1.1.0`” and “If this release had migrations, run reverse migrations or restore DB from backup.” Include who to contact and any ordering (e.g. roll back app before rolling back DB). |
+
+| What                          | Where / how                                                                                                                                                                                                                                         |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Changelog / release notes** | Update `CHANGELOG.md` with version, date, and a short list of changes (features, fixes, breaking changes). Example: `## 1.2.0 (2026-02-02) - Added expiring freebets job; fixed public_id type in entity.`                                          |
+| **Deploy steps**              | Document in `docs/deploy.md` or README: order of steps (e.g. backup → migrate → deploy → health check), which env vars are required, how to run migrations, and how to verify the deployment.                                                       |
+| **What was deployed**         | Tag the commit (e.g. `v1.2.0`) and attach release notes describing what the tag contains. In CI/CD, deploy from the tag or from a release artefact so what’s in production is traceable.                                                            |
+| **Config / env**              | List new or changed environment variables, config files, or secrets (names and purpose; never put secret values in the doc). Note any defaults and which environments they apply to.                                                                |
+| **Rollback**                  | Document how to roll back: e.g. “Redeploy previous image tag `v1.1.0`” and “If this release had migrations, run reverse migrations or restore DB from backup.” Include who to contact and any ordering (e.g. roll back app before rolling back DB). |
+
 
 **Rule:** Main (and tagged releases) must have enough detail so that someone can understand what is in production, how it was deployed, and how to roll back without relying on tribal knowledge.
 
@@ -365,11 +383,13 @@ Same pattern as Identity and Payment: register jobs with the Scheduler; implemen
 
 *Table format: **Area** = aspect; **.NET** / **Django** = stack-specific value.*
 
-| Area | .NET | Django |
-|------|------|--------|
-| **Package** | NuGet `Convex.Grpc.Contracts` | pip `convex-grpc-contracts` |
-| **Registry** | GitLab (NuGet) | GitLab PyPI or private |
-| **Version** | Same (e.g. 1.2.0) | Same |
+
+| Area         | .NET                          | Django                      |
+| ------------ | ----------------------------- | --------------------------- |
+| **Package**  | NuGet `Convex.Grpc.Contracts` | pip `convex-grpc-contracts` |
+| **Registry** | GitLab (NuGet)                | GitLab PyPI or private      |
+| **Version**  | Same (e.g. 1.2.0)             | Same                        |
+
 
 **Rest of the standards:**
 

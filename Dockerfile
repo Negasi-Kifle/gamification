@@ -51,6 +51,7 @@ USER appuser
 # Expose ports
 # HTTP port for Django REST API
 EXPOSE 8000
+
 # gRPC port
 EXPOSE 50051
 

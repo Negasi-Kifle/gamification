@@ -1,15 +1,3 @@
-"""
-Correlation ID middleware for Django.
-
-Extracts or generates correlation IDs (request_id, trace_id, tenant_id) from
-incoming requests and adds them to the log context for all subsequent log messages.
-
-Per technical guideline §9:
-- request_id: Per-request correlation ID (X-Request-ID header or generated)
-- trace_id: OpenTelemetry/Jaeger trace ID (X-Trace-ID or traceparent header)
-- tenant_id: Tenant identifier (X-Tenant-ID header)
-"""
-
 import logging
 import time
 import uuid
@@ -24,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class CorrelationIdMiddleware:
     """
-    Django middleware that extracts/generates correlation IDs and adds them to log context.
+    Django middleware that extracts or generates correlation IDs from RESTful API requests and adds them to log context.
 
     Headers:
     - X-Request-ID: Per-request correlation ID (generated if not present)
@@ -155,48 +143,3 @@ class CorrelationIdMiddleware:
     def _get_tenant_id(self, request: HttpRequest) -> str | None:
         """Get tenant ID from header."""
         return request.META.get(self.TENANT_ID_HEADER)
-
-
-class GrpcCorrelationInterceptor:
-    """
-    gRPC interceptor for extracting correlation IDs from metadata.
-
-    Usage:
-        from shared.middleware.correlation import GrpcCorrelationInterceptor
-
-        interceptor = GrpcCorrelationInterceptor()
-        server = grpc.server(
-            futures.ThreadPoolExecutor(max_workers=10),
-            interceptors=[interceptor]
-        )
-    """
-
-    # Standard metadata keys for gRPC
-    REQUEST_ID_KEY = "x-request-id"
-    TRACE_ID_KEY = "x-trace-id"
-    TENANT_ID_KEY = "x-tenant-id"
-
-    def intercept_service(self, continuation, handler_call_details):
-        """Intercept incoming gRPC calls to set log context."""
-        # Extract metadata
-        metadata = (
-            dict(handler_call_details.invocation_metadata)
-            if handler_call_details.invocation_metadata
-            else {}
-        )
-
-        request_id = metadata.get(self.REQUEST_ID_KEY) or str(uuid.uuid4())
-        trace_id = metadata.get(self.TRACE_ID_KEY)
-        tenant_id = metadata.get(self.TENANT_ID_KEY)
-
-        # Set log context
-        LogContext.set(
-            request_id=request_id,
-            trace_id=trace_id,
-            tenant_id=tenant_id,
-        )
-
-        try:
-            return continuation(handler_call_details)
-        finally:
-            LogContext.clear()

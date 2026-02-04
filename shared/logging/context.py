@@ -1,15 +1,12 @@
-"""
-Log context management for correlation IDs.
-
-Provides thread-local storage for request_id, trace_id, and tenant_id
-that can be automatically included in all log messages.
-"""
+from __future__ import annotations
 
 import contextvars
 import uuid
-from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Any
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # Context variable for storing log context
 _log_context: contextvars.ContextVar[dict[str, Any]] = contextvars.ContextVar(
@@ -19,7 +16,8 @@ _log_context: contextvars.ContextVar[dict[str, Any]] = contextvars.ContextVar(
 
 class LogContext:
     """
-    Context manager for setting log correlation IDs.
+    Context manager for setting log correlation IDs. Provides thread-local storage for request_id, trace_id, and tenant_id
+    that can be automatically included in all log messages.
 
     Usage:
         with LogContext(request_id="req-123", tenant_id="t1"):
@@ -48,7 +46,7 @@ class LogContext:
         self.context.update(extra)
         self._token: contextvars.Token | None = None
 
-    def __enter__(self) -> "LogContext":
+    def __enter__(self) -> LogContext:
         # Merge with existing context
         current = _log_context.get()
         new_context = {**current, **self.context}
